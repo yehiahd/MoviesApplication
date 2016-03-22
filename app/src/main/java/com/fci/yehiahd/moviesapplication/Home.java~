@@ -1,5 +1,6 @@
 package com.fci.yehiahd.moviesapplication;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -7,8 +8,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.GridView;
 import android.widget.Toast;
 
@@ -23,15 +22,12 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 public class Home extends AppCompatActivity {
 
     GridView movies_gridView;
+    ProgressDialog dialog;
     ArrayList<String> list ;
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,41 +35,20 @@ public class Home extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         movies_gridView = (GridView) findViewById(R.id.movies_grid_view);
         list = new ArrayList<>();
-        try {
-            checkConnection();
-
-        }
-         catch (Exception e) {
-             e.printStackTrace();
-         }
+        checkConnection();
         //movies_gridView.setAdapter(new GridViewAdapter(this, list));
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main,menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()){
-            case R.id.setting:
-                Toast.makeText(Home.this, "3la wad3y", Toast.LENGTH_SHORT).show();
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void checkConnection() throws ExecutionException, InterruptedException {
+    public void checkConnection(){
 
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            new DownloadPosters(this).execute().get();
+            new DownloadPosters(this).execute();
         }
         else
         {
@@ -92,8 +67,7 @@ public class Home extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            //super.onPreExecute();
-
+            //dialog = ProgressDialog.show(mContext, "Yehia", "Loading...", true);
         }
 
         @Override
@@ -102,6 +76,7 @@ public class Home extends AppCompatActivity {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String posterJsonStr = null;
+           // Toast.makeText(getApplicationContext() , "eh b2a ?", Toast.LENGTH_SHORT).show();
 
 
             try {
@@ -120,6 +95,7 @@ public class Home extends AppCompatActivity {
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
+                    // Nothing to do.
                     return null;
                 }
 
@@ -135,7 +111,6 @@ public class Home extends AppCompatActivity {
                 }
                 posterJsonStr = buffer.toString();
             }
-
             catch (IOException e){
                 return null;
             }
@@ -147,19 +122,25 @@ public class Home extends AppCompatActivity {
                 if (reader != null) {
                     try {
                         reader.close();
-                    } catch (final IOException e) {}
+                    } catch (final IOException e) {
+                        //Toast.makeText(getApplicationContext(), "2", Toast.LENGTH_SHORT).show();
+
+                    }
                 }
             }
             try {
+                //Toast.makeText(getApplicationContext(), "it Works", Toast.LENGTH_SHORT).show();
                 return getPosterPathFromJson(posterJsonStr);
             } catch (Exception e) {
+                //Toast.makeText(getApplicationContext(), "3", Toast.LENGTH_SHORT).show();
             }
             return null;
         }
 
         @Override
         protected void onPostExecute(String[] strings) {
-            //super.onPostExecute(strings);
+            super.onPostExecute(strings);
+            int i=0;
             if(strings!=null){
 
                 list.clear();
@@ -168,9 +149,11 @@ public class Home extends AppCompatActivity {
                }
 
             }
+
             movies_gridView.setAdapter(new GridViewAdapter(mContext, list));
 
 
+            //dialog.cancel();
         }
 
 

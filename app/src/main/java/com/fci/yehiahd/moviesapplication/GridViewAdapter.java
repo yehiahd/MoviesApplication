@@ -1,6 +1,7 @@
 package com.fci.yehiahd.moviesapplication;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -15,18 +16,19 @@ import java.util.ArrayList;
  */
 public class GridViewAdapter extends BaseAdapter {
 
-    /*int temp[] = {R.drawable.spartacus,R.drawable.game_of_thrones,R.drawable.avatar,R.drawable.avengers,R.drawable.blackswan
+   /* int temp[] = {R.drawable.spartacus,R.drawable.game_of_thrones,R.drawable.avatar,R.drawable.avengers,R.drawable.blackswan
     ,R.drawable.cap_america,R.drawable.darkknight,R.drawable.divergent,R.drawable.gods_of_egypt
     ,R.drawable.interstellar,R.drawable.ironman2,R.drawable.lightning_thief,R.drawable.looper
-    ,R.drawable.realsteal,R.drawable.twilight,R.drawable.jab_tak_hai_jaan};
-*/
+    ,R.drawable.realsteal,R.drawable.twilight,R.drawable.jab_tak_hai_jaan};*/
     Context mContext;
     ArrayList<String> list;
+    ImageView imageView;
 
     GridViewAdapter(Context context,ArrayList<String> list){
         this.mContext = context;
         this.list = new ArrayList<>(list);
     }
+
 
     @Override
     public int getCount() {
@@ -40,18 +42,23 @@ public class GridViewAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        ImageView view = (ImageView) convertView;
+         imageView = (ImageView) convertView;
 
-        if(view==null){
-            view = new ImageView(mContext);
+        if(imageView==null){
+
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View v =inflater.inflate(R.layout.sample,null);
+            imageView = (ImageView) v.findViewById(R.id.sample_id);
         }
-        Picasso.with(mContext).load(String.valueOf(list.get(position))).resize(360, 512).into(view);
-        return view;
+        //Log.d("Yehia", String.valueOf(list.get(position)) + " " + String.valueOf(getCount()));
+        Picasso.with(mContext).load(list.get(position)).resize(360, 512).into(imageView);
+        return imageView;
     }
+
 }
