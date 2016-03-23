@@ -1,6 +1,7 @@
 package com.fci.yehiahd.moviesapplication;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -31,23 +32,37 @@ public class Home extends AppCompatActivity {
     ArrayList<String> list ;
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         movies_gridView = (GridView) findViewById(R.id.movies_grid_view);
         list = new ArrayList<>();
-        try {
-            checkConnection();
-
-        }
-         catch (Exception e) {
-             e.printStackTrace();
-         }
         //movies_gridView.setAdapter(new GridViewAdapter(this, list));
 
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        try {
+            checkConnection();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            checkConnection();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -61,10 +76,21 @@ public class Home extends AppCompatActivity {
 
         switch (item.getItemId()){
             case R.id.setting:
-                Toast.makeText(Home.this, "3la wad3y", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(Home.this,SettingActivity.class));
+                break;
+            case R.id.refresh:
+                try {
+                    refresh();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void refresh() throws ExecutionException, InterruptedException {
+        checkConnection();
     }
 
     public void checkConnection() throws ExecutionException, InterruptedException {
@@ -73,7 +99,7 @@ public class Home extends AppCompatActivity {
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            new DownloadPosters(this).execute().get();
+            new DownloadPosters(this).execute();
         }
         else
         {
@@ -169,8 +195,6 @@ public class Home extends AppCompatActivity {
 
             }
             movies_gridView.setAdapter(new GridViewAdapter(mContext, list));
-
-
         }
 
 
@@ -187,6 +211,7 @@ public class Home extends AppCompatActivity {
                 jsonRootObject = new JSONObject(posterJsonStr);
             } catch (JSONException e) {
             }
+
             JSONArray jsonArray = jsonRootObject.optJSONArray(OWN_LIST);
 
             for(int i=0;i<jsonArray.length();i++){
@@ -206,9 +231,6 @@ public class Home extends AppCompatActivity {
             AL.toArray(arr);
             return arr;
         }
-
-
     }
-
 
 }

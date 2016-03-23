@@ -1,3 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Movies Application</string>
+    <string name="setting_label">Sort By</string>
+    <string name="sort_by_key">sort_by_key</string>
+    <string name="default_option_sort_by">Top Rated</string>
 </resources>

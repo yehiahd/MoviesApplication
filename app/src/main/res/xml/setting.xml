@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ListPreference
+        android:title="@string/setting_label"
+        android:key="@string/sort_by_key"
+        android:defaultValue="@string/default_option_sort_by"
+        android:entries="@array/userOptions"
+        android:entryValues="@array/user_options_values"/>
+
+
+</PreferenceScreen>

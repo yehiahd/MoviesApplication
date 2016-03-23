@@ -53,11 +53,12 @@ public class GridViewAdapter extends BaseAdapter {
         if(imageView==null){
 
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View v =inflater.inflate(R.layout.sample,null);
+            View v =inflater.inflate(R.layout.sample,parent,false);
             imageView = (ImageView) v.findViewById(R.id.sample_id);
         }
         //Log.d("Yehia", String.valueOf(list.get(position)) + " " + String.valueOf(getCount()));
-        Picasso.with(mContext).load(list.get(position)).resize(360, 512).into(imageView);
+        //Toast.makeText(mContext, ""+getCount(), Toast.LENGTH_SHORT).show();
+        Picasso.with(mContext).load(list.get(position)).resize(360, 512).into(imageView);//360,512
         return imageView;
     }
 
