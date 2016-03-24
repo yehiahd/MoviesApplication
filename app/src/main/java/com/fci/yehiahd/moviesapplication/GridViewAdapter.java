@@ -21,10 +21,10 @@ public class GridViewAdapter extends BaseAdapter {
     ,R.drawable.interstellar,R.drawable.ironman2,R.drawable.lightning_thief,R.drawable.looper
     ,R.drawable.realsteal,R.drawable.twilight,R.drawable.jab_tak_hai_jaan};*/
     Context mContext;
-    ArrayList<String> list;
+    ArrayList<MovieInfo> list;
     ImageView imageView;
 
-    GridViewAdapter(Context context,ArrayList<String> list){
+    GridViewAdapter(Context context,ArrayList<MovieInfo> list){
         this.mContext = context;
         this.list = new ArrayList<>(list);
     }
@@ -58,7 +58,8 @@ public class GridViewAdapter extends BaseAdapter {
         }
         //Log.d("Yehia", String.valueOf(list.get(position)) + " " + String.valueOf(getCount()));
         //Toast.makeText(mContext, ""+getCount(), Toast.LENGTH_SHORT).show();
-        Picasso.with(mContext).load(list.get(position)).resize(360, 512).into(imageView);//360,512
+        Picasso.with(mContext).load(list.get(position).getPoster_path()).resize(360, 512).into(imageView);//360,512
+        //Log.d("Vote Avg of movie "+position , String.valueOf(list.get(position).getVote_average()));
         return imageView;
     }
 

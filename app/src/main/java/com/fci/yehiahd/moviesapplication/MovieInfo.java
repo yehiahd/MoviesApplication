@@ -11,9 +11,22 @@ public class MovieInfo {
     private String original_title;
     private String title;
     private String backdrop_path;
-    private String popularity;
+    private double popularity;
     private int vote_count;
     private double vote_average;
+
+    MovieInfo(){
+        this.poster_path="";
+        this.overview = "";
+        this.release_date = "";
+        this.id="";
+        this.original_title="";
+        this.title="";
+        this.backdrop_path="";
+        this.popularity=0.0;
+        this.vote_count=0;
+        this.vote_average=0.0;
+    }
 
     public String getPoster_path() {
         return poster_path;
@@ -71,11 +84,11 @@ public class MovieInfo {
         this.backdrop_path = backdrop_path;
     }
 
-    public String getPopularity() {
+    public double getPopularity() {
         return popularity;
     }
 
-    public void setPopularity(String popularity) {
+    public void setPopularity(double popularity) {
         this.popularity = popularity;
     }
 
