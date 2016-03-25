@@ -2,15 +2,22 @@ package com.fci.yehiahd.moviesapplication;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -25,11 +32,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+/**
+ * Created by yehia on 19/03/16.
+ */
 
-public class Home extends AppCompatActivity {
+public class Home extends AppCompatActivity implements AdapterView.OnItemClickListener{
 
     GridView movies_gridView;
     ArrayList<MovieInfo> list ;
+    int width,height;
+    Intent i;
+    String prefStatus,oldPrefStatus;
+    ListView trailers;
 
 
     @Override
@@ -39,17 +53,41 @@ public class Home extends AppCompatActivity {
         movies_gridView = (GridView) findViewById(R.id.movies_grid_view);
         //movies_gridView.setAdapter(new GridViewAdapter(this, list));
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
+        movies_gridView.setOnItemClickListener(this);
         try {
             checkConnection();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        oldPrefStatus = prefs.getString(getString(R.string.sort_by_key),"");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefStatus = prefs.getString(getString(R.string.sort_by_key),"");
+        if(!prefStatus.equals(oldPrefStatus)){
+            try {
+                refresh();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            oldPrefStatus = prefStatus;
+        }
+    }
+
+    public void getDim(){
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        width = size.x;
+        height = size.y;
     }
 
     @Override
@@ -77,10 +115,12 @@ public class Home extends AppCompatActivity {
     }
 
     public void refresh() throws ExecutionException, InterruptedException {
+
         checkConnection();
     }
 
     public void checkConnection() throws ExecutionException, InterruptedException {
+
 
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -95,6 +135,13 @@ public class Home extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        i = new Intent(this,MovieDetails.class);
+        i.putExtra("film",list.get(position));
+        startActivity(i);
+    }
+
     public class DownloadPosters extends AsyncTask<Void,Void,MovieInfo[]>{
 
         private Context mContext;
@@ -105,7 +152,7 @@ public class Home extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            //super.onPreExecute();
+            getDim();
 
         }
 
@@ -115,10 +162,15 @@ public class Home extends AppCompatActivity {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String posterJsonStr = null;
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            prefStatus = prefs.getString(getString(R.string.sort_by_key),"");
 
 
             try {
-                final String POSTER_BASE_URL = "http://api.themoviedb.org/3/movie/popular?";
+                String POSTER_BASE_URL = "http://api.themoviedb.org/3/movie/top_rated?";
+                if(prefStatus.equals("most_popular")){
+                    POSTER_BASE_URL ="http://api.themoviedb.org/3/movie/popular?";
+                }
                 final String APP_ID = "api_key";
 
                 Uri uri = Uri.parse(POSTER_BASE_URL).buildUpon()
@@ -173,16 +225,15 @@ public class Home extends AppCompatActivity {
         @Override
         protected void onPostExecute(MovieInfo[] strings) {
             //super.onPostExecute(strings);
-            if(strings!=null){
 
+            if(strings!=null){
                 list = new ArrayList<>();
                 for (MovieInfo temp : strings){
                     list.add(temp);
+                    //Log.d("tgrobaaaaaaaaaaa",prefStatus);
                }
-
             }
-           movies_gridView.setAdapter(new GridViewAdapter(mContext, list));
-
+           movies_gridView.setAdapter(new GridViewAdapter(mContext, list, width,height));
         }
 
 
@@ -200,7 +251,7 @@ public class Home extends AppCompatActivity {
             final String VOTE_COUNT = "vote_count";
             final String VOTE_AVERAGE= "vote_average";
 
-            StringBuilder path ;
+            StringBuilder path ,backpath;
             String overView ,releaseDate,id,originalTitle,title,backdropPath;
             double popularity,voteAverage;
             int voteCount;
@@ -218,6 +269,7 @@ public class Home extends AppCompatActivity {
             for(int i=0;i<jsonArray.length();i++){
                 //Log.d("i",String.valueOf(i));
                 path = new StringBuilder();
+                backpath = new StringBuilder();
                 movieInfosArr[i] = new MovieInfo();
 
                 JSONObject jsonObject = null;
@@ -233,7 +285,8 @@ public class Home extends AppCompatActivity {
                 id = jsonObject.optString(ID).toString();
                 originalTitle = jsonObject.optString(ORIGINAL_TITLE).toString();
                 title = jsonObject.optString(TITLE).toString();
-                backdropPath = jsonObject.optString(BACKDROP_PATH).toString();
+                backpath.append("http://image.tmdb.org/t/p/").append("w185/").append(jsonObject.optString(BACKDROP_PATH).toString());
+                backdropPath = String.valueOf(backpath);
                 popularity = jsonObject.optDouble(POPULARITY);
                 voteCount = jsonObject.optInt(VOTE_COUNT);
                 voteAverage = jsonObject.optDouble(VOTE_AVERAGE);
@@ -251,7 +304,7 @@ public class Home extends AppCompatActivity {
                 movieInfosArr[i].setVote_average(voteAverage);
             }
 
-            //MovieInfo arr[] = new MovieInfo[AL.size()];
+            //MovieInfo arr[] = new MovieInfo[AL.size()];dd
             //AL.toArray(arr);
             return movieInfosArr;
         }

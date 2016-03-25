@@ -1,9 +1,12 @@
 package com.fci.yehiahd.moviesapplication;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by yehia on 23/03/16.
  */
-public class MovieInfo {
+public class MovieInfo implements Parcelable  {
     private String poster_path;
     private String overview;
     private String release_date;
@@ -27,6 +30,31 @@ public class MovieInfo {
         this.vote_count=0;
         this.vote_average=0.0;
     }
+
+    protected MovieInfo(Parcel in) {
+        poster_path = in.readString();
+        overview = in.readString();
+        release_date = in.readString();
+        id = in.readString();
+        original_title = in.readString();
+        title = in.readString();
+        backdrop_path = in.readString();
+        popularity = in.readDouble();
+        vote_count = in.readInt();
+        vote_average = in.readDouble();
+    }
+
+    public static final Creator<MovieInfo> CREATOR = new Creator<MovieInfo>() {
+        @Override
+        public MovieInfo createFromParcel(Parcel in) {
+            return new MovieInfo(in);
+        }
+
+        @Override
+        public MovieInfo[] newArray(int size) {
+            return new MovieInfo[size];
+        }
+    };
 
     public String getPoster_path() {
         return poster_path;
@@ -107,4 +135,44 @@ public class MovieInfo {
     public void setVote_average(double vote_average) {
         this.vote_average = vote_average;
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(poster_path);
+        dest.writeString(overview);
+        dest.writeString(release_date);
+        dest.writeString(id);
+        dest.writeString(original_title);
+        dest.writeString(title);
+        dest.writeString(backdrop_path);
+        dest.writeDouble(popularity);
+        dest.writeInt(vote_count);
+        dest.writeDouble(vote_average);
+    }
+
+    /*
+    public void readFromParcel(Parcel in ) {
+
+        poster_path = in .readString();
+        overview = in .readString();
+        release_date = in .readString();
+        id = in .readString();
+        original_title= in .readString();
+        title = in .readString();
+        backdrop_path = in .readString();
+        popularity = in.readDouble();
+        vote_count = in .readInt();
+        vote_average =in.readDouble();
+    }
+    */
 }

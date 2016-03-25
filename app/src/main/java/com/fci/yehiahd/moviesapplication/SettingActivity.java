@@ -18,6 +18,8 @@ public class SettingActivity extends PreferenceActivity implements Preference.On
         addPreferencesFromResource(R.xml.setting);
 
         bindPreferenceSummaryToValue(findPreference(getString(R.string.sort_by_key)));
+
+
     }
 
     private void bindPreferenceSummaryToValue(Preference preference) {
@@ -26,10 +28,9 @@ public class SettingActivity extends PreferenceActivity implements Preference.On
 
         // Trigger the listener immediately with the preference's
         // current value.
-        onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(),""));
+        onPreferenceChange(
+                preference,
+                PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString(preference.getKey(), ""));
     }
 
 
@@ -50,6 +51,8 @@ public class SettingActivity extends PreferenceActivity implements Preference.On
             preference.setSummary(stringValue);
         }
         return true;
-
     }
+
+
+
 }

@@ -23,10 +23,13 @@ public class GridViewAdapter extends BaseAdapter {
     Context mContext;
     ArrayList<MovieInfo> list;
     ImageView imageView;
+    int width,height;
 
-    GridViewAdapter(Context context,ArrayList<MovieInfo> list){
+    GridViewAdapter(Context context,ArrayList<MovieInfo> list , int width, int height){
         this.mContext = context;
         this.list = new ArrayList<>(list);
+        this.width=width;
+        this.height=height;
     }
 
 
@@ -34,6 +37,7 @@ public class GridViewAdapter extends BaseAdapter {
     public int getCount() {
         return list.size();
     }
+
 
     @Override
     public Object getItem(int position) {
@@ -44,7 +48,6 @@ public class GridViewAdapter extends BaseAdapter {
     public long getItemId(int position) {
         return position;
     }
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -58,9 +61,10 @@ public class GridViewAdapter extends BaseAdapter {
         }
         //Log.d("Yehia", String.valueOf(list.get(position)) + " " + String.valueOf(getCount()));
         //Toast.makeText(mContext, ""+getCount(), Toast.LENGTH_SHORT).show();
-        Picasso.with(mContext).load(list.get(position).getPoster_path()).resize(360, 512).into(imageView);//360,512
+        Picasso.with(mContext).load(list.get(position).getPoster_path()).placeholder(R.drawable.icon_loading).resize((this.width)/2, (this.height)/2).into(imageView);//360,512
         //Log.d("Vote Avg of movie "+position , String.valueOf(list.get(position).getVote_average()));
         return imageView;
     }
+
 
 }
