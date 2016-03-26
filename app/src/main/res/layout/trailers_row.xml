@@ -16,6 +16,6 @@
         android:layout_marginTop="18dp"
         android:textAppearance="?android:textAppearanceLarge"
         android:paddingLeft="24dp"
-        android:text="Mohamed"/>
+        android:text="Yehia"/>
 
 </LinearLayout>

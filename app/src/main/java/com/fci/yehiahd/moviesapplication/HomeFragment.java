@@ -49,10 +49,12 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
     Intent i;
     String prefStatus,oldPrefStatus;
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
     }
 
 

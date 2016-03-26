@@ -72,6 +72,7 @@ public class MovieDetailsFragment extends Fragment implements ListView.OnItemCli
         trailerList = (ListView) view.findViewById(R.id.detail_trailer_list_view);
         reviewList = (ListView) view.findViewById(R.id.detail_reviews_list_view);
 
+
         movieInfo = getActivity().getIntent().getExtras().getParcelable("film");
         builder = new StringBuilder();
         titleTemp = movieInfo.getTitle();
@@ -121,6 +122,7 @@ public class MovieDetailsFragment extends Fragment implements ListView.OnItemCli
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(list.get(position).getKey())));
     }
+
 
     private class TrailerTask extends AsyncTask<Void,Void,TrailerData[]>{
 
