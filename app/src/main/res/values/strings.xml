@@ -4,6 +4,7 @@
     <string name="setting_label">Sort By</string>
     <string name="sort_by_key">sort_by_key</string>
     <string name="default_option_sort_by">Top Rated</string>
+    <string name="api_key">e39xxxxxxxxxxxxxxxxxxxxxxx</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

@@ -1,108 +1,325 @@
 package com.fci.yehiahd.moviesapplication;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Point;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.GridView;
+import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link HomeFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class HomeFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class HomeFragment extends Fragment implements AdapterView.OnItemClickListener {
 
-    private OnFragmentInteractionListener mListener;
 
     public HomeFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+
+    GridView movies_gridView;
+    ArrayList<MovieInfo> list ;
+    int width,height;
+    Intent i;
+    String prefStatus,oldPrefStatus;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+        setHasOptionsMenu(true);
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_home, container,false);
+        movies_gridView = (GridView) rootView.findViewById(R.id.movies_grid_view);
+        movies_gridView.setOnItemClickListener(this);
+
+        try {
+            checkConnection();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        oldPrefStatus = prefs.getString(getString(R.string.sort_by_key),"");
+
+        return rootView;
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        prefStatus = prefs.getString(getString(R.string.sort_by_key),"");
+        if(!prefStatus.equals(oldPrefStatus)){
+            try {
+                refresh();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            oldPrefStatus = prefStatus;
+        }
+    }
+
+    public void getDim(){
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        width = size.x;
+        height = size.y;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_main,menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.setting:
+                startActivity(new Intent(getActivity(),SettingActivity.class));
+                break;
+            case R.id.refresh:
+                try {
+                    refresh();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void refresh() throws ExecutionException, InterruptedException {
+
+        checkConnection();
+    }
+
+    public void checkConnection() throws ExecutionException, InterruptedException {
+
+
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getActivity()
+        .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            new DownloadPosters(getActivity()).execute();
+        }
+        else
+        {
+            Toast.makeText(getActivity(), "Please Check Internet Connection", Toast.LENGTH_SHORT).show();
+
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        i = new Intent(getActivity(),MovieDetails.class);
+        i.putExtra("film",list.get(position));
+        startActivity(i);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+
+
+    public class DownloadPosters extends AsyncTask<Void,Void,MovieInfo[]> {
+
+        private Context mContext;
+        DownloadPosters(Context context){
+            this.mContext = context;
         }
-    }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+
+        @Override
+        protected void onPreExecute() {
+            getDim();
+
         }
-    }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
+        @Override
+        protected MovieInfo[] doInBackground(Void... params) {
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String posterJsonStr = null;
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            prefStatus = prefs.getString(getString(R.string.sort_by_key),"");
+
+
+            try {
+                String POSTER_BASE_URL = "http://api.themoviedb.org/3/movie/top_rated?";
+                if(prefStatus.equals("most_popular")){
+                    POSTER_BASE_URL ="http://api.themoviedb.org/3/movie/popular?";
+                }
+                final String APP_ID = "api_key";
+
+                Uri uri = Uri.parse(POSTER_BASE_URL).buildUpon()
+                        .appendQueryParameter(APP_ID, getString(R.string.api_key)).build();
+
+                URL url = new URL(uri.toString());
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    return null;
+                }
+
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+
+                if (buffer.length() == 0) {
+                    return null;
+                }
+                posterJsonStr = buffer.toString();
+            }
+
+            catch (IOException e){
+                return null;
+            }
+
+            finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {}
+                }
+            }
+            try {
+                return getPosterPathFromJson(posterJsonStr);
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(MovieInfo[] strings) {
+            //super.onPostExecute(strings);
+
+            if(strings!=null){
+                list = new ArrayList<>();
+                for (MovieInfo temp : strings){
+                    list.add(temp);
+                    //Log.d("tgrobaaaaaaaaaaa",prefStatus);
+                }
+            }
+            movies_gridView.setAdapter(new GridViewAdapter(mContext, list, width,height));
+        }
+
+
+        public MovieInfo [] getPosterPathFromJson(String posterJsonStr) {
+
+            final String POSTER_PATH="poster_path";
+            final String OWN_LIST ="results";
+            final String OVER_VIEW="overview";
+            final String RELESE_DATE = "release_date";
+            final String ID = "id";
+            final String ORIGINAL_TITLE="original_title";
+            final String TITLE ="title";
+            final String BACKDROP_PATH ="backdrop_path";
+            final String POPULARITY ="popularity";
+            final String VOTE_COUNT = "vote_count";
+            final String VOTE_AVERAGE= "vote_average";
+
+            StringBuilder path ,backpath;
+            String overView ,releaseDate,id,originalTitle,title,backdropPath;
+            double popularity,voteAverage;
+            int voteCount;
+
+            JSONObject jsonRootObject = null;
+            try {
+                jsonRootObject = new JSONObject(posterJsonStr);
+            } catch (JSONException e) {
+            }
+
+            JSONArray jsonArray = jsonRootObject.optJSONArray(OWN_LIST);
+            MovieInfo [] movieInfosArr = new MovieInfo[jsonArray.length()];
+            //Log.d("7gm l array", String.valueOf(movieInfosArr.length));
+
+            for(int i=0;i<jsonArray.length();i++){
+                //Log.d("i",String.valueOf(i));
+                path = new StringBuilder();
+                backpath = new StringBuilder();
+                movieInfosArr[i] = new MovieInfo();
+
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = jsonArray.getJSONObject(i);
+                } catch (JSONException e) {
+
+                }
+
+                path.append("http://image.tmdb.org/t/p/").append("w185/").append(jsonObject.optString(POSTER_PATH).toString());
+                overView = jsonObject.optString(OVER_VIEW).toString();
+                releaseDate = jsonObject.optString(RELESE_DATE).toString();
+                id = jsonObject.optString(ID).toString();
+                originalTitle = jsonObject.optString(ORIGINAL_TITLE).toString();
+                title = jsonObject.optString(TITLE).toString();
+                backpath.append("http://image.tmdb.org/t/p/").append("w185/").append(jsonObject.optString(BACKDROP_PATH).toString());
+                backdropPath = String.valueOf(backpath);
+                popularity = jsonObject.optDouble(POPULARITY);
+                voteCount = jsonObject.optInt(VOTE_COUNT);
+                voteAverage = jsonObject.optDouble(VOTE_AVERAGE);
+
+
+                movieInfosArr[i].setPoster_path(String.valueOf(path));
+                movieInfosArr[i].setOverview(overView);
+                movieInfosArr[i].setRelease_date(releaseDate);
+                movieInfosArr[i].setId(id);
+                movieInfosArr[i].setOriginal_title(originalTitle);
+                movieInfosArr[i].setTitle(title);
+                movieInfosArr[i].setBackdrop_path(backdropPath);
+                movieInfosArr[i].setPopularity(popularity);
+                movieInfosArr[i].setVote_count(voteCount);
+                movieInfosArr[i].setVote_average(voteAverage);
+            }
+
+            //MovieInfo arr[] = new MovieInfo[AL.size()];dd
+            //AL.toArray(arr);
+            return movieInfosArr;
+        }
     }
 }

@@ -4,15 +4,17 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:id="@+id/trailer_row_image_view"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:src="@drawable/play"/>
 
     <TextView
         android:id="@+id/trailer_row_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="18dp"
+        android:textAppearance="?android:textAppearanceLarge"
         android:paddingLeft="24dp"
         android:text="Mohamed"/>
 
