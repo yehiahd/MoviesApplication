@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:textAppearanceMedium"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:layout_marginLeft="24dp"
         android:text="asdkljas;dlas;ldjakjsfhka;sldknc"/>
 

@@ -18,13 +18,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingActivity"></activity>
-        <activity android:name=".MovieDetails"
+        <activity android:name=".SettingActivity" />
+        <activity
+            android:name=".MovieDetails"
             android:parentActivityName=".Home">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value=".Home"/>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".Home" />
         </activity>
+        <activity
+            android:name=".TrailersActivity"
+            android:theme="@style/Base.Theme.AppCompat.Dialog"></activity>
+        <activity android:name=".ReviewsActivity"
+            android:theme="@style/Base.Theme.AppCompat.Dialog"></activity>
     </application>
 
 </manifest>

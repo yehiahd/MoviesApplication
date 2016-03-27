@@ -6,6 +6,7 @@ import android.os.Parcelable;
 /**
  * Created by yehia on 23/03/16.
  */
+
 public class MovieInfo implements Parcelable  {
     private String poster_path;
     private String overview;
