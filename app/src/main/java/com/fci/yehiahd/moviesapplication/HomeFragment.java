@@ -47,44 +47,66 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
     ArrayList<MovieInfo> list ;
     int width,height;
     Intent i;
-    String prefStatus,oldPrefStatus;
+    String prefStatus,oldPrefStatus, tempPref;
+    DBConnection db;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        getDim();
 
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_home, container,false);
+        View rootView = inflater.inflate(R.layout.fragment_home, container, false);
         movies_gridView = (GridView) rootView.findViewById(R.id.movies_grid_view);
         movies_gridView.setOnItemClickListener(this);
 
-        try {
-            checkConnection();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         oldPrefStatus = prefs.getString(getString(R.string.sort_by_key),"");
+
+        if(oldPrefStatus.equals(getString(R.string.favorite_option))){
+            getFavoriteMovies();
+        }
+
+        else {
+            try {
+                checkConnection();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         return rootView;
     }
 
+    public void getFavoriteMovies(){
+        db = new DBConnection(getActivity());
+        list=db.getAllMovies();
+        movies_gridView.setAdapter(new GridViewAdapter(getActivity(), list, width,height));
+    }
 
     @Override
     public void onResume() {
         super.onResume();
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         prefStatus = prefs.getString(getString(R.string.sort_by_key),"");
+
+        //Log.d("YehiaPref",prefStatus);
         if(!prefStatus.equals(oldPrefStatus)){
             try {
-                refresh();
+                if(prefStatus.equals(getString(R.string.favorite_option))){
+                    getFavoriteMovies();
+                }
+                else
+                    refresh();
             } catch (ExecutionException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
@@ -128,7 +150,15 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
 
     public void refresh() throws ExecutionException, InterruptedException {
 
-        checkConnection();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        tempPref = prefs.getString(getString(R.string.sort_by_key),"");
+
+        if(tempPref.equals(getString(R.string.favorite_option))){
+            getFavoriteMovies();
+        }
+
+        else
+            checkConnection();
     }
 
     public void checkConnection() throws ExecutionException, InterruptedException {
@@ -165,11 +195,6 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         }
 
 
-        @Override
-        protected void onPreExecute() {
-            getDim();
-
-        }
 
         @Override
         protected MovieInfo[] doInBackground(Void... params) {
@@ -183,7 +208,7 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
 
             try {
                 String POSTER_BASE_URL = "http://api.themoviedb.org/3/movie/top_rated?";
-                if(prefStatus.equals("most_popular")){
+                if(prefStatus.equals(getString(R.string.most_pop_option))){
                     POSTER_BASE_URL ="http://api.themoviedb.org/3/movie/popular?";
                 }
                 final String APP_ID = "api_key";
@@ -267,8 +292,8 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
             final String VOTE_AVERAGE= "vote_average";
 
             StringBuilder path ,backpath;
-            String overView ,releaseDate,id,originalTitle,title,backdropPath;
-            double popularity,voteAverage;
+            String overView ,releaseDate,id,originalTitle,title,backdropPath,voteAverage;
+            double popularity;
             int voteCount;
 
             JSONObject jsonRootObject = null;
@@ -304,7 +329,7 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
                 backdropPath = String.valueOf(backpath);
                 popularity = jsonObject.optDouble(POPULARITY);
                 voteCount = jsonObject.optInt(VOTE_COUNT);
-                voteAverage = jsonObject.optDouble(VOTE_AVERAGE);
+                voteAverage = jsonObject.optString(VOTE_AVERAGE);
 
 
                 movieInfosArr[i].setPoster_path(String.valueOf(path));

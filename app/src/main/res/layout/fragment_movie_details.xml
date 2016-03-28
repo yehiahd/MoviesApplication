@@ -61,6 +61,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="22dp"
+                    android:layout_marginLeft="48dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -70,7 +71,6 @@
                         android:textSize="32dp"
                         android:textAppearance="?android:textAppearanceLarge"
                         android:textColor="#747474"
-                        android:layout_marginLeft="48dp"
                         android:text="2015"/>
 
                     <TextView
@@ -79,7 +79,6 @@
                         android:layout_height="wrap_content"
                         android:text="8.1/10"
                         android:textColor="#000000"
-                        android:layout_marginLeft="48dp"
                         android:layout_marginTop="12dp"/>
 
                     <Button
@@ -88,18 +87,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="mark as favorite"
-                        android:layout_marginLeft="48dp"
                         android:background="#00daaf"/>
 
-                    <RatingBar
-                        android:id="@+id/rating_bar"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="42dp"
-                        android:numStars="10"
-                        android:layout_marginLeft="18dp"
-                        style="?android:attr/ratingBarStyleSmall"
-                        android:rating="3.5" />
                 </LinearLayout>
 
             </LinearLayout>

@@ -17,7 +17,7 @@ public class MovieInfo implements Parcelable  {
     private String backdrop_path;
     private double popularity;
     private int vote_count;
-    private double vote_average;
+    private String vote_average;
 
     MovieInfo(){
         this.poster_path="";
@@ -29,7 +29,21 @@ public class MovieInfo implements Parcelable  {
         this.backdrop_path="";
         this.popularity=0.0;
         this.vote_count=0;
-        this.vote_average=0.0;
+        this.vote_average="";
+    }
+
+    MovieInfo(String poster_path,String overview,String release_date,String id,String original_title,String title
+    ,String backdrop_path, double popularity,int vote_count , String vote_average){
+        this.poster_path=poster_path;
+        this.overview = overview;
+        this.release_date = release_date;
+        this.id=id;
+        this.original_title=original_title;
+        this.title=title;
+        this.backdrop_path=backdrop_path;
+        this.popularity=popularity;
+        this.vote_count=vote_count;
+        this.vote_average=vote_average;
     }
 
     protected MovieInfo(Parcel in) {
@@ -42,7 +56,7 @@ public class MovieInfo implements Parcelable  {
         backdrop_path = in.readString();
         popularity = in.readDouble();
         vote_count = in.readInt();
-        vote_average = in.readDouble();
+        vote_average = in.readString();
     }
 
     public static final Creator<MovieInfo> CREATOR = new Creator<MovieInfo>() {
@@ -129,11 +143,11 @@ public class MovieInfo implements Parcelable  {
         this.vote_count = vote_count;
     }
 
-    public double getVote_average() {
+    public String getVote_average() {
         return vote_average;
     }
 
-    public void setVote_average(double vote_average) {
+    public void setVote_average(String vote_average) {
         this.vote_average = vote_average;
     }
 
@@ -158,7 +172,7 @@ public class MovieInfo implements Parcelable  {
         dest.writeString(backdrop_path);
         dest.writeDouble(popularity);
         dest.writeInt(vote_count);
-        dest.writeDouble(vote_average);
+        dest.writeString(vote_average);
     }
 
     /*

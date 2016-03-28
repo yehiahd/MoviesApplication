@@ -65,6 +65,4 @@ public class GridViewAdapter extends BaseAdapter {
         //Log.d("Vote Avg of movie "+position , String.valueOf(list.get(position).getVote_average()));
         return imageView;
     }
-
-
 }

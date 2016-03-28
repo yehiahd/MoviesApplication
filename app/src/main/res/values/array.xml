@@ -4,10 +4,12 @@
     <string-array name="userOptions">
         <item>Most Popular</item>
         <item>Top Rated</item>
+        <item>Favorite</item>
     </string-array>
 
     <string-array name="user_options_values">
         <item>most_popular</item>
         <item>top_rated</item>
+        <item>favorite</item>
     </string-array>
 </resources>
