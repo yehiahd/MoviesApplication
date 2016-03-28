@@ -1,6 +1,7 @@
 package com.fci.yehiahd.moviesapplication;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -91,12 +92,14 @@ public class MovieDetailsFragment extends Fragment {
 
                 boolean check = db.checkID(movieInfo.getId());
                 if(check == false){
-                    Toast.makeText(getActivity(), "This movie already added to favorite list", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Removed From Favorite list", Toast.LENGTH_SHORT).show();
+                    markUnMark();
                     return;
                 }
-                db.addMovie(movieInfo.getId(),movieInfo.getPoster_path(),movieInfo.getRelease_date(),movieInfo.getVote_average(),
-                        movieInfo.getOverview(),movieInfo.getTitle());
-                Toast.makeText(getActivity(), "Added successfully", Toast.LENGTH_SHORT).show();
+                db.addMovie(movieInfo.getId(), movieInfo.getPoster_path(), movieInfo.getRelease_date(), movieInfo.getVote_average(),
+                        movieInfo.getOverview(), movieInfo.getTitle());
+                Toast.makeText(getActivity(), "Added to favorite List", Toast.LENGTH_SHORT).show();
+                markUnMark();
             }
         });
 
@@ -106,9 +109,26 @@ public class MovieDetailsFragment extends Fragment {
         detailDescription.setText(movieInfo.getOverview());
         builder.append("http://image.tmdb.org/t/p/").append("w185/").append(movieInfo.getPoster_path());
         Picasso.with(getActivity()).load(builder.toString()).placeholder(R.drawable.icon_loading).resize(300, 450).into(detailImage);
+
+
+        markUnMark();
+
         return view;
     }
 
+
+    public void markUnMark(){
+        db = new DBConnection(getActivity());
+        if(db.isFavorite(movieInfo.getId())){
+            detailMarkAsFavorite.setBackgroundColor(Color.YELLOW);
+            detailMarkAsFavorite.setText("Marked as Favorite");
+        }
+
+        else {
+            detailMarkAsFavorite.setBackgroundColor(Color.parseColor("#00daaf"));
+            detailMarkAsFavorite.setText("Mark as Favorite");
+        }
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

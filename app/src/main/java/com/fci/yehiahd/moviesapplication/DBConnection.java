@@ -92,6 +92,23 @@ public class DBConnection extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query,null);
         if (cursor.getCount()==0)
             return true;
-        else return false;
+        else return removeMovie(id);
+    }
+
+    public boolean removeMovie(String id){
+        String query = "DELETE FROM favorites WHERE id="+id;
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(query);
+        return false;
+    }
+
+    public boolean isFavorite(String id){
+        String query = "SELECT * FROM favorites WHERE id="+id;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query,null);
+        if(cursor.getCount()!=0)
+            return true;
+        else
+            return false;
     }
 }
