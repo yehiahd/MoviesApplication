@@ -104,7 +104,7 @@ public class MovieDetailsFragment extends Fragment {
                 db = new DBConnection(getActivity());
 
                 boolean check = db.checkID(movieInfo.getId());
-                if(check == false){
+                if (check == false) {
                     Toast.makeText(getActivity(), "Removed From Favorite list", Toast.LENGTH_SHORT).show();
                     markUnMark();
                     return;
@@ -120,6 +120,30 @@ public class MovieDetailsFragment extends Fragment {
     }
 
     public void changeDate(MovieInfo movieInfo){
+
+        if(movieInfo.getId().equals("")){
+            detailTitle.setText("No Favorites");
+            detailImage.setVisibility(View.GONE);
+            reviewsButton.setVisibility(View.GONE);
+            detailMarkAsFavorite.setVisibility(View.GONE);
+            trailersButton.setVisibility(View.GONE);
+            detailDate.setVisibility(View.GONE);
+            detailVoteAverage.setVisibility(View.GONE);
+            detailDescription.setVisibility(View.GONE);
+            return;
+
+        }
+
+        else
+        {
+            detailImage.setVisibility(View.VISIBLE);
+            reviewsButton.setVisibility(View.VISIBLE);
+            detailMarkAsFavorite.setVisibility(View.VISIBLE);
+            trailersButton.setVisibility(View.VISIBLE);
+            detailDate.setVisibility(View.VISIBLE);
+            detailVoteAverage.setVisibility(View.VISIBLE);
+            detailDescription.setVisibility(View.VISIBLE);
+        }
 
         this.movieInfo = movieInfo;
 
@@ -159,20 +183,23 @@ public class MovieDetailsFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if(!isTablet(getActivity()))
         inflater.inflate(R.menu.menu_main, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()){
-            case R.id.refresh:
-                getActivity().recreate();
-                return true;
-            case R.id.setting:
-                startActivity(new Intent(getActivity(),SettingActivity.class));
-                return true;
+        if(!isTablet(getActivity())){
+            switch (item.getItemId()){
+                case R.id.refresh:
+                    getActivity().recreate();
+                    return true;
+                case R.id.setting:
+                    startActivity(new Intent(getActivity(),SettingActivity.class));
+                    return true;
+            }
         }
+
         return super.onOptionsItemSelected(item);
     }
 

@@ -91,7 +91,6 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         comm = (Communicator) getActivity();
 
     }
@@ -100,13 +99,18 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         db = new DBConnection(getActivity());
         list=db.getAllMovies();
         movies_gridView.setAdapter(new GridViewAdapter(getActivity(), list, width,height));
-         if(isTablet(getActivity())&&list.size()!=0){
-            comm.respond(list.get(0));
+
+        if(isTablet(getActivity())){
+            if(list.size()!=0){
+                comm.respond(list.get(0));
+            }
+            else
+                comm.respond(new MovieInfo());
         }
 
     }
 
-        rride
+    @Override
     public void onResume() {
         super.onResume();
 
@@ -151,14 +155,11 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if(!isTablet(getActivity()))
-        inflater.inflate(R.menu.menu_main,menu);
+                inflater.inflate(R.menu.menu_main,menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        if(!isTablet(getActivity())){
 
             switch (item.getItemId()){
                 case R.id.setting:
@@ -172,8 +173,6 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
                     }
                     break;
             }
-
-        }
         return super.onOptionsItemSelected(item);
 
     }
