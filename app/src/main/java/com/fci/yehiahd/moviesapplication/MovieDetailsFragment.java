@@ -1,6 +1,8 @@
 package com.fci.yehiahd.moviesapplication;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -53,18 +55,29 @@ public class MovieDetailsFragment extends Fragment {
         trailersButton = (Button) view.findViewById(R.id.trailers_button);
         reviewsButton = (Button) view.findViewById(R.id.reviews_button);
 
+        if(!isTablet(getActivity())){
+            movieInfo = getActivity().getIntent().getExtras().getParcelable("film");
+            builder = new StringBuilder();
+            titleTemp = movieInfo.getTitle();
 
-        movieInfo = getActivity().getIntent().getExtras().getParcelable("film");
-        builder = new StringBuilder();
-        titleTemp = movieInfo.getTitle();
+            if(titleTemp.contains(":")){
+                detailTitle.setText(titleTemp.substring(0, titleTemp.indexOf(':')));
+            }
 
-        if(titleTemp.contains(":")){
-            detailTitle.setText(titleTemp.substring(0, titleTemp.indexOf(':')));
+            else
+                detailTitle.setText(titleTemp);
+
+
+
+
+            dateTemp = movieInfo.getRelease_date().substring(0,4);
+            detailDate.setText(dateTemp);
+            detailVoteAverage.setText(movieInfo.getVote_average() + "/10");
+            detailDescription.setText(movieInfo.getOverview());
+            builder.append("http://image.tmdb.org/t/p/").append("w185/").append(movieInfo.getPoster_path());
+            Picasso.with(getActivity()).load(builder.toString()).placeholder(R.drawable.icon_loading).resize(300, 450).into(detailImage);
+            markUnMark();
         }
-
-        else
-            detailTitle.setText(titleTemp);
-
 
         trailersButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,17 +116,31 @@ public class MovieDetailsFragment extends Fragment {
             }
         });
 
+        return view;
+    }
+
+    public void changeDate(MovieInfo movieInfo){
+
+        this.movieInfo = movieInfo;
+
+        builder = new StringBuilder();
+        titleTemp = movieInfo.getTitle();
+
+        if(titleTemp.contains(":")){
+            detailTitle.setText(titleTemp.substring(0, titleTemp.indexOf(':')));
+        }
+
+        else
+            detailTitle.setText(titleTemp);
+
         dateTemp = movieInfo.getRelease_date().substring(0,4);
         detailDate.setText(dateTemp);
         detailVoteAverage.setText(movieInfo.getVote_average() + "/10");
         detailDescription.setText(movieInfo.getOverview());
         builder.append("http://image.tmdb.org/t/p/").append("w185/").append(movieInfo.getPoster_path());
         Picasso.with(getActivity()).load(builder.toString()).placeholder(R.drawable.icon_loading).resize(300, 450).into(detailImage);
-
-
         markUnMark();
 
-        return view;
     }
 
 
@@ -147,6 +174,12 @@ public class MovieDetailsFragment extends Fragment {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public static boolean isTablet(Context context) {
+        return (context.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 
 }

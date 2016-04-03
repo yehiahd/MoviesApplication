@@ -3,6 +3,7 @@ package com.fci.yehiahd.moviesapplication;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -49,6 +50,7 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
     Intent i;
     String prefStatus,oldPrefStatus, tempPref;
     DBConnection db;
+    Communicator comm;
 
 
     @Override
@@ -86,18 +88,30 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         return rootView;
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        comm = (Communicator) getActivity();
+
+    }
+
     public void getFavoriteMovies(){
         db = new DBConnection(getActivity());
         list=db.getAllMovies();
         movies_gridView.setAdapter(new GridViewAdapter(getActivity(), list, width,height));
+         if(isTablet(getActivity())&&list.size()!=0){
+            comm.respond(list.get(0));
+        }
+
     }
 
-    @Override
+        rride
     public void onResume() {
         super.onResume();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        prefStatus = prefs.getString(getString(R.string.sort_by_key),"");
+        prefStatus = prefs.getString(getString(R.string.sort_by_key), "");
 
         //Log.d("YehiaPref",prefStatus);
         if(!prefStatus.equals(oldPrefStatus)){
@@ -121,31 +135,47 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        width = size.x;
-        height = size.y;
+
+        if(!isTablet(getActivity())){
+            width = (size.x)/2;
+            height = (size.y)/2;
+        }
+
+        else {
+            width = (size.x)/4;
+            height = (size.y)/2;
+        }
+
     }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if(!isTablet(getActivity()))
         inflater.inflate(R.menu.menu_main,menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()){
-            case R.id.setting:
-                startActivity(new Intent(getActivity(),SettingActivity.class));
-                break;
-            case R.id.refresh:
-                try {
-                    refresh();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
+        if(!isTablet(getActivity())){
+
+            switch (item.getItemId()){
+                case R.id.setting:
+                    startActivity(new Intent(getActivity(),SettingActivity.class));
+                    break;
+                case R.id.refresh:
+                    try {
+                        refresh();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
+
         }
         return super.onOptionsItemSelected(item);
+
     }
 
     public void refresh() throws ExecutionException, InterruptedException {
@@ -180,9 +210,23 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        i = new Intent(getActivity(),MovieDetails.class);
-        i.putExtra("film",list.get(position));
-        startActivity(i);
+
+        if(!isTablet(getActivity())){
+            i = new Intent(getActivity(),MovieDetails.class);
+            i.putExtra("film",list.get(position));
+            startActivity(i);
+        }
+
+        else {
+            comm.respond(list.get(position));
+        }
+
+    }
+
+    public static boolean isTablet(Context context) {
+        return (context.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 
 
@@ -273,7 +317,11 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
                     //Log.d("tgrobaaaaaaaaaaa",prefStatus);
                 }
             }
-            movies_gridView.setAdapter(new GridViewAdapter(mContext, list, width,height));
+            movies_gridView.setAdapter(new GridViewAdapter(mContext, list, width, height));
+            if(isTablet(getActivity())){
+                comm.respond(list.get(0));
+
+            }
         }
 
 
