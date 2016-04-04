@@ -61,7 +61,7 @@ public class GridViewAdapter extends BaseAdapter {
         }
         //Log.d("Yehia", String.valueOf(list.get(position)) + " " + String.valueOf(getCount()));
         //Toast.makeText(mContext, ""+getCount(), Toast.LENGTH_SHORT).show();
-        Picasso.with(mContext).load(list.get(position).getPoster_path()).placeholder(R.drawable.icon_loading).resize(this.width,this.height).into(imageView);//360,512
+        Picasso.with(mContext).load(list.get(position).getPoster_path()).placeholder(R.drawable.icon_loading).error(R.drawable.error).resize(this.width,this.height).into(imageView);//360,512
         //Log.d("Vote Avg of movie "+position , String.valueOf(list.get(position).getVote_average()));
         return imageView;
     }

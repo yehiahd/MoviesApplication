@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -67,33 +69,44 @@ public class MovieDetailsFragment extends Fragment {
             else
                 detailTitle.setText(titleTemp);
 
-
-
-
             dateTemp = movieInfo.getRelease_date().substring(0,4);
             detailDate.setText(dateTemp);
             detailVoteAverage.setText(movieInfo.getVote_average() + "/10");
             detailDescription.setText(movieInfo.getOverview());
             builder.append("http://image.tmdb.org/t/p/").append("w185/").append(movieInfo.getPoster_path());
-            Picasso.with(getActivity()).load(builder.toString()).placeholder(R.drawable.icon_loading).resize(300, 450).into(detailImage);
+            Picasso.with(getActivity()).load(builder.toString()).placeholder(R.drawable.icon_loading).error(R.drawable.error).resize(300, 450).into(detailImage);
             markUnMark();
         }
 
         trailersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getActivity(), TrailersActivity.class);
-                i.putExtra("object", movieInfo);
-                startActivity(i);
+
+                if(checkConnection()){
+                    Intent i = new Intent(getActivity(), TrailersActivity.class);
+                    i.putExtra("object", movieInfo);
+                    startActivity(i);
+                }
+
+                else
+                    Toast.makeText(getActivity(), "please check your Internet Connection", Toast.LENGTH_SHORT).show();
+
             }
         });
 
         reviewsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getActivity(), ReviewsActivity.class);
-                i.putExtra("object", movieInfo);
-                startActivity(i);
+
+                if(checkConnection()){
+                    Intent i = new Intent(getActivity(), ReviewsActivity.class);
+                    i.putExtra("object", movieInfo);
+                    startActivity(i);
+                }
+
+                else
+                    Toast.makeText(getActivity(), "please check your Internet Connection", Toast.LENGTH_SHORT).show();
+
             }
         });
 
@@ -119,6 +132,20 @@ public class MovieDetailsFragment extends Fragment {
         return view;
     }
 
+    public boolean checkConnection(){
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getActivity()
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public void changeDate(MovieInfo movieInfo){
 
         if(movieInfo.getId().equals("")){
@@ -131,7 +158,6 @@ public class MovieDetailsFragment extends Fragment {
             detailVoteAverage.setVisibility(View.GONE);
             detailDescription.setVisibility(View.GONE);
             return;
-
         }
 
         else
@@ -162,7 +188,7 @@ public class MovieDetailsFragment extends Fragment {
         detailVoteAverage.setText(movieInfo.getVote_average() + "/10");
         detailDescription.setText(movieInfo.getOverview());
         builder.append("http://image.tmdb.org/t/p/").append("w185/").append(movieInfo.getPoster_path());
-        Picasso.with(getActivity()).load(builder.toString()).placeholder(R.drawable.icon_loading).resize(300, 450).into(detailImage);
+        Picasso.with(getActivity()).load(builder.toString()).placeholder(R.drawable.icon_loading).error(R.drawable.error).resize(300, 450).into(detailImage);
         markUnMark();
 
     }

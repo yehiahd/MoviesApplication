@@ -59,6 +59,10 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         setHasOptionsMenu(true);
         getDim();
 
+        if(savedInstanceState!=null){
+            list = savedInstanceState.getParcelableArrayList("list");
+        }
+
     }
 
 
@@ -85,6 +89,7 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
             }
         }
 
+
         return rootView;
     }
 
@@ -95,10 +100,11 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
 
     }
 
+
     public void getFavoriteMovies(){
         db = new DBConnection(getActivity());
         list=db.getAllMovies();
-        movies_gridView.setAdapter(new GridViewAdapter(getActivity(), list, width,height));
+        movies_gridView.setAdapter(new GridViewAdapter(getActivity(), list, width, height));
 
         if(isTablet(getActivity())){
             if(list.size()!=0){
@@ -109,6 +115,13 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         }
 
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("list", list);
+        super.onSaveInstanceState(outState);
+    }
+
 
     @Override
     public void onResume() {
@@ -133,6 +146,16 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
 
             oldPrefStatus = prefStatus;
         }
+
+        if(!isConnected()&&isTablet(getActivity())){
+            try {
+                refresh();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void getDim(){
@@ -155,7 +178,7 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-                inflater.inflate(R.menu.menu_main,menu);
+                inflater.inflate(R.menu.menu_main, menu);
     }
 
     @Override
@@ -175,6 +198,18 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
             }
         return super.onOptionsItemSelected(item);
 
+    }
+
+    public boolean isConnected(){
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getActivity()
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            return true;
+        }
+        else
+            return false;
     }
 
     public void refresh() throws ExecutionException, InterruptedException {
@@ -202,6 +237,11 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         }
         else
         {
+            if(list.size()!=0){
+                movies_gridView.setAdapter(new GridViewAdapter(getActivity(), list, width, height));
+                    comm.respond(list.get(0));
+            }
+
             Toast.makeText(getActivity(), "Please Check Internet Connection", Toast.LENGTH_SHORT).show();
 
         }
@@ -319,7 +359,6 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
             movies_gridView.setAdapter(new GridViewAdapter(mContext, list, width, height));
             if(isTablet(getActivity())){
                 comm.respond(list.get(0));
-
             }
         }
 

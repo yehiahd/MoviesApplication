@@ -46,7 +46,7 @@ public class MovieInfo implements Parcelable  {
         this.vote_average=vote_average;
     }
 
-    protected MovieInfo(Parcel in) {
+    private MovieInfo(Parcel in) {
         poster_path = in.readString();
         overview = in.readString();
         release_date = in.readString();
@@ -59,8 +59,7 @@ public class MovieInfo implements Parcelable  {
         vote_average = in.readString();
     }
 
-    public static final Creator<MovieInfo> CREATOR = new Creator<MovieInfo>() {
-        @Override
+    public static final Parcelable.Creator<MovieInfo> CREATOR  = new Parcelable.Creator<MovieInfo>() {
         public MovieInfo createFromParcel(Parcel in) {
             return new MovieInfo(in);
         }
@@ -175,7 +174,7 @@ public class MovieInfo implements Parcelable  {
         dest.writeString(vote_average);
     }
 
-    /*
+
     public void readFromParcel(Parcel in ) {
 
         poster_path = in .readString();
@@ -187,7 +186,8 @@ public class MovieInfo implements Parcelable  {
         backdrop_path = in .readString();
         popularity = in.readDouble();
         vote_count = in .readInt();
-        vote_average =in.readDouble();
+        vote_average =in.readString();
     }
-    */
+
+
 }
